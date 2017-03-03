@@ -10,9 +10,13 @@ function UserDetail($arg, $arg2) {
     $user = new user();
     return $user->UserDetail($arg, $arg2);
 }
-function CreateGravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+function CreateGravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array(), $class = null ) {
     $user = new user();
-    return $user->CreateGravatar($email, $s, $d, $r, $img, $atts);
+    return $user->CreateGravatar($email, $s, $d, $r, $img, $atts, $class);
+}
+function ProfileInfo($userID, $field) {
+    $user = new user();
+    return $user->ProfileInfo($userID, $field);
 }
 class user
 {
@@ -57,16 +61,31 @@ SQL;
         default: return $result[$arg2]; break;
     }
     }
-    public function CreateGravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+    public function CreateGravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array(), $class = null ) {
         $url = 'https://www.gravatar.com/avatar/';
         $url .= md5( strtolower( trim( $email ) ) );
         $url .= "?s=$s&d=$d&r=$r";
         if ( $img ) {
-            $url = '<img src="' . $url . '"';
+            $url = '<img src="' . $url . '" class="'. $class . '"';
             foreach ( $atts as $key => $val )
                 $url .= ' ' . $key . '="' . $val . '"';
             $url .= ' />';
         }
         return $url;
+    }
+    public function ProfileInfo($userID, $field) {
+        $query = <<<SQL
+SELECT location,fname,lname,os,member_since,email_hidden
+FROM profile
+WHERE id = :userID
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+            ":userID"   => $userID,
+        ));
+        if($resource->rowCount() == 0 ) { return "User Not found"; }
+        $result = $resource->fetch(PDO::FETCH_ASSOC);
+        return $result[$field];
+
     }
 }
