@@ -1,0 +1,36 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Chubs
+ * Date: 2/11/2017
+ * Time: 9:04 PM
+ */
+
+class website_connection extends pdo{
+    //Website Variables
+    public $sitedb = '';
+    public $siteconfig;
+    public $sitesettings = array(
+        'host'      => MySQLHost,
+        'database'  => MySQLDB,
+        'username'  => MySQLUser,
+        'password'  => MySQLPass,
+    );
+    public function __construct()
+    {
+        try {
+            $this->db = new PDO(
+                "mysql:host={$this->sitesettings['host']};" .
+                "dbname={$this->sitesettings['database']};" .
+                "charset=utf8",
+                "{$this->sitesettings['username']}",
+                "{$this->sitesettings['password']}"
+            );
+            $this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        }
+        catch (PDOException $e) {
+            die("There is a Problem Connecting to your database. Please Check your settings and try again later.
+            <br />If you are a User Please Contact <a href='mailto:".WebMaster."?subject=Database Connection Error for ".SiteName."&body=Site Version: ".VersionNO."'>". WebMaster ."</a>");
+        }
+    }
+}

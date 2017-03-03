@@ -1,0 +1,97 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Chubs
+ * Date: 12/29/2016
+ * Time: 1:59 AM
+ */
+/*File Path Settings
+*/
+define("rootp", dirname(__dir__))."/..";
+define("corep", dirname(__file__));
+define("classp", corep.'\classes');
+define("hookp", corep.'\hooks');
+define("publicp", rootp.'\public_html');
+define("appp", publicp.'\app');
+define("modulep", appp.'\modules');
+define("pluginp", appp.'\plugins');
+define("themep", appp.'\themes');
+define("internalmodule", corep.'\modules');
+define('ThemeFile', "index.php");
+define('ThemePath', themep.'\\'.ActiveTheme.'\\'.ThemeFile);
+
+function LoadTheme($path) {
+    if(file_exists($path)) {
+        require_once $path;
+    }
+    else {
+        die("Could not load Theme");
+    }
+}
+function LoadPlugins() {
+    foreach(glob(pluginp.'\\*') as $plugin) {
+        if(file_exists($plugin.'\\index.php')) {
+            require_once $plugin.'\\index.php';
+        } else {
+            echo "Failed to Load ".str_replace(pluginp,"",$plugin). " Plugin";
+        }
+    }
+}
+function LoadCSS($path) {
+    $css = str_replace("index.php", "style.css", $path);
+    if(file_exists($css)) {
+        $convert_url = str_replace(publicp, "//".$_SERVER['HTTP_HOST'], $css);
+        echo "<link href='".$convert_url."' rel='stylesheet'>".PHP_EOL;
+    }
+}
+function LoadScript($scriptPath,$scriptName) {
+    $ScriptPath = ThemePath.'\\'.$scriptPath.'\\'.$scriptName;
+    $FinalPath = str_replace("index.php", "", $ScriptPath);
+    if(file_exists($FinalPath)) {
+        $urlPath = str_replace(publicp, "//".$_SERVER['HTTP_HOST'], $FinalPath);
+        echo "<script src='".$urlPath."'></script>'".PHP_EOL;
+    } else {
+        echo $scriptName. ' Not Found. Aborting Load';
+    }
+}
+function LoadPluginScripts() {
+    foreach(glob(pluginp.'\\*\\*.js') as $ScriptFile) {
+        $urlPath = str_replace(publicp, "//".$_SERVER['HTTP_HOST'], $ScriptFile);
+        echo "<script src='".$urlPath."?".time()."'></script>'".PHP_EOL;
+    }
+}
+function LoadHooks() {
+    foreach(glob(hookp.'/*.hook') as $hookFile) {
+        require_once $hookFile;
+    }
+}
+function LoadClasses() {
+    foreach(glob(classp.'/*.class') as $classFile) {
+        require_once $classFile;
+    }
+}
+function LoadModule($moduleName) {
+    if(file_exists(internalmodule.'\\'.$moduleName.'.module')) {
+        require_once(internalmodule.'\\'.$moduleName.'.module');
+    } else {
+        die('Module <b>'.$moduleName.' </b>Not Found');
+    }
+}
+function UserOnline() {
+    if(!isset($_SESSION['user']['id'])) {
+        return false;
+    } else {
+        return true;
+    }
+}
+function UserID() {
+    if(!isset($_SESSION['user']['id'])) {
+        return 0;
+    } else {
+        return $_SESSION['user']['id'];
+    }
+}
+/*Todo
+Create Path slash normalizations
+Move theme functions to a Theme Loader
+*/

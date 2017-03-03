@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * Created by PhpStorm.
+ * User: Chubs
+ * Date: 12/29/2016
+ * Time: 2:01 AM
+ */
+function UserDetail($arg, $arg2) {
+    $user = new user();
+    return $user->UserDetail($arg, $arg2);
+}
+function CreateGravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+    $user = new user();
+    return $user->CreateGravatar($email, $s, $d, $r, $img, $atts);
+}
+class user
+{
+    public function __construct() {
+        $this->db = new website_connection();
+    }
+    public function CheckLogin($username, $password) {
+        $pass = sha1($username.':'.$password);
+        $query = <<<SQL
+SELECT id FROM accounts WHERE password = :pass
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+            ":pass" => $pass,
+        ));
+        if($resource->rowCount() == 0 ) {
+            echo 'Incorrect Username/Password Combination';
+            //Send Bad Login Request
+        } else {
+            $result = $resource->fetch(PDO::FETCH_ASSOC);
+            self::StartSession($result['id']);
+            //Log The User In
+        }
+
+    }
+    public function StartSession($id) {
+        $_SESSION['user']['id'] = $id;
+        echo 1;
+    }
+    public function UserDetail($arg, $arg2) {
+    $query = <<<SQL
+SELECT username,account_type,reg_mail
+FROM accounts
+WHERE id = :id
+SQL;
+    $resource = $this->db->db->prepare( $query );
+    $resource->execute( array (
+        ":id"   => $arg,
+    ));
+    $result = $resource->fetch(PDO::FETCH_ASSOC);
+    switch($arg2) {
+        default: return $result[$arg2]; break;
+    }
+    }
+    public function CreateGravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+        $url = 'https://www.gravatar.com/avatar/';
+        $url .= md5( strtolower( trim( $email ) ) );
+        $url .= "?s=$s&d=$d&r=$r";
+        if ( $img ) {
+            $url = '<img src="' . $url . '"';
+            foreach ( $atts as $key => $val )
+                $url .= ' ' . $key . '="' . $val . '"';
+            $url .= ' />';
+        }
+        return $url;
+    }
+}

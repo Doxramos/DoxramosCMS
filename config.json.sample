@@ -1,0 +1,21 @@
+{
+  "Settings": {
+    "SiteName": "Doxramos CMS",
+    "Language": "en",
+    "publicBuild": false,
+    "devBuild": true,
+    "ActiveTheme": "default",
+    "webmaster": "green.morgan87@gmail.com"
+  },
+  "Version": {
+    "FriendlyName": "Alpha Albino",
+    "buildno": "0.0.0.1",
+    "ReleaseDate": "TDB"
+  },
+  "MySQL": {
+    "host": "host",
+    "username": "user",
+    "password": "pass",
+    "database": "database"
+  }
+}

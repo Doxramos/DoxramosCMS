@@ -1,0 +1,14 @@
+Options -Indexes
+Options +FollowSymLinks
+IndexIgnore */*
+# Turn on the RewriteEngine
+RewriteEngine On
+#  Rules
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9]+)$ index.php?page=$1
+RewriteRule ^([a-zA-Z0-9]+)/$ index.php?page=$1
+RewriteRule ^([a-zA-Z0-9]+)/([a-zA-Z0-9]+)$ index.php?page=$1&ident=$2
+RewriteRule ^([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/$ index.php?page=$1&ident=$2
+RewriteRule ^([a-zA-Z0-9]+)/([a-zA-Z0-9]+)$ index.php?page=$1&ident=$2&ident2=$3
+RewriteRule ^([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/$ index.php?page=$1&ident=$2&ident2=$3

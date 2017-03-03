@@ -1,0 +1,163 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Chubs
+ * Date: 2/12/2017
+ * Time: 4:53 PM
+ */
+
+function PageName() {
+    if(!isset($_GET['page'])) {
+        define('PageName', 'home');
+    } else {
+        define('PageName', $_GET['page']);
+    }
+}
+function PageDetail($arg) {
+    $content = new ContentInfo();
+    //return $content->PageDetail($arg);
+    if(strpos($content->PageDetail($arg), "[*") !== false) {
+        $function1 = str_replace("[*", "", $content->PageDetail($arg));
+        $function = str_replace("*]", "", $function1);
+        if(is_callable($function)) {
+            $function();
+        } else {
+            return "Function Could Not be Loaded";
+        }
+    } else {
+        return $content->PageDetail($arg);
+    }
+}
+function Navigation() {
+    $content = new ContentInfo();
+    $content->CreateNavigation();
+}
+function UserMenu() {
+    ?>
+    <ul class="nav navbar-nav pull-right">
+        <?php if(UserOnline() == true) { ?>
+        <li class="dropdown">
+            <a href="properties.php?type=showall" class="dropdown-toggle" data-toggle="dropdown">
+                 Welcome <?php echo ucfirst(UserDetail(UserID(), "username")); ?>!
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="account"><?php echo CreateGravatar(UserDetail(UserID(), "reg_mail"), "25", "mm", "g", true, array()); ?> My Account </a></li>
+
+                <div style="display:none">
+                    <form id="logout_form">
+                <input type="hidden" name="process" value="logout">
+                        <input type="hidden" id="post_url" value="<?php echo LOGIN_PAGE_ACTION; ?>">
+                    </form>
+                </div>
+                <li id="logout_function"><a href="javascript:void();">Logout</a></li>
+                </ul>
+        </li>
+        <?php }  else {
+            echo "<li><a href='login'>Login</a></li>";
+
+        }?>
+    </ul>
+    <?php
+}
+class ContentInfo
+{
+    public function __construct()
+    {
+        $this->db = new website_connection();
+    }
+
+    public function PageDetail($switch)
+    {
+                return $this->ReturnContent(PageName, $switch);
+    }
+    public function GetErrorPage($errorCode,$switch) {
+        $query = <<<SQL
+        SELECT title,content FROM error_templates WHERE errorCode = :errorCode
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+        ':errorCode'  => $errorCode,
+        ));
+        if($resource->rowCount() == 0 ) {
+            return "No Error Handler Found";
+        } else {
+            $result = $resource->fetch(PDO::FETCH_ASSOC);
+            return $result[$switch];
+        }
+    }
+    public function ReturnContent($page, $switch) {
+        $query = <<<SQL
+SELECT title,content FROM pages WHERE ident = :page
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+            ":page" => $page,
+        ));
+        if($resource->rowCount() == 0 ) {
+            return $this->GetErrorPage(404, $switch);
+        }
+        else {
+            $result = $resource->fetch(PDO::FETCH_ASSOC);
+            return $result[$switch];
+        }
+    }
+    public function CreateNavigation() {
+        $query = <<<SQL
+SELECT ident, title FROM pages  WHERE parent = :parent OR parent IS NULL ORDER BY pageOrder;
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+            ":parent"   => "",
+        ));
+        foreach($resource as $row) {
+            //Check if Dropdown or Regular Menu item
+            if(self::CheckDropdown($row['ident']) == true) {
+                self::CreateDropdown($row['ident'], $row['title']);
+            } else {
+                echo "<li><a href='".$row['ident']."'>".$row['title']."</a></li>";
+            }
+        }
+
+    }
+    public function CreateDropdown($ident, $title) { ?>
+        <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $title; ?> <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <?php self::GetChildrent($ident); ?>
+                    </ul>
+                </li>
+<?php
+    }
+    public function GetChildrent($parent) {
+        $query = <<<SQL
+        SELECT ident,title FROM pages WHERE parent = :parent
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+            ":parent"   => $parent,
+        ));
+        foreach($resource as $row) {
+            echo "<li><a href='".$row['ident']."'>".$row['title']."</a></li>";
+        }
+    }
+    public function CheckDropdown($ident) {
+        $query = <<<SQL
+SELECT ident FROM pages WHERE parent = :ident
+SQL;
+        $resource = $this->db->db->prepare( $query );
+        $resource->execute( array (
+            ":ident"    => $ident
+        ));
+        if($resource->rowCount() == 0 ) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+}
+$content = new ContentInfo();
+
+PageName();
+//TODO Create 404 Database Handler
