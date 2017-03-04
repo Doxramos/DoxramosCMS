@@ -49,7 +49,7 @@ function LoadScript($scriptPath,$scriptName) {
     $FinalPath = str_replace("index.php", "", $ScriptPath);
     if(file_exists($FinalPath)) {
         $urlPath = str_replace(publicp, "//".$_SERVER['HTTP_HOST'], $FinalPath);
-        echo "<script src='".$urlPath."'></script>'".PHP_EOL;
+        echo "<script src='".$urlPath."'></script>".PHP_EOL;
     } else {
         echo $scriptName. ' Not Found. Aborting Load';
     }
@@ -57,7 +57,7 @@ function LoadScript($scriptPath,$scriptName) {
 function LoadPluginScripts() {
     foreach(glob(pluginp.'\\*\\*.js') as $ScriptFile) {
         $urlPath = str_replace(publicp, "//".$_SERVER['HTTP_HOST'], $ScriptFile);
-        echo "<script src='".$urlPath."?".time()."'></script>'".PHP_EOL;
+        echo "<script src='".$urlPath."?".time()."'></script>".PHP_EOL;
     }
 }
 function LoadHooks() {
