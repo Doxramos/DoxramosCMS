@@ -61,19 +61,31 @@ Setup Javascript module loaders
 
 </div><!-- /.container -->
 <style>
+    html {
+        position: relative;
+        min-height: 100%;
+    }
+    //*{ border: 1px solid red; }*//
+
+
     .full {
         width: 100%;
     }
     .gap {
-        height: 30px;
         width: 100%;
         clear: both;
-        display: block;
+    }
+    footer {
+        display:none;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: auto;
+        width: 100%;
     }
     .footer {
         background: #EDEFF1;
         height: auto;
-        padding-bottom: 100px;
         position: relative;
         width: 100%;
         border-bottom: 1px solid #CCCCCC;
@@ -219,16 +231,13 @@ Setup Javascript module loaders
                         <li> <a href="#"> Lorem Ipsum </a> </li>
                         <li> <a href="#"> Lorem Ipsum </a> </li>
                     </ul>
-                </div>
-                <div class="col-lg-2  col-md-2 col-sm-4 col-xs-6">
-                    <h3> Lorem Ipsum </h3>
-                    <ul>
-                        <li> <a href="#"> Lorem Ipsum </a> </li>
-                        <li> <a href="#"> Lorem Ipsum </a> </li>
-                        <li> <a href="#"> Lorem Ipsum </a> </li>
-                        <li> <a href="#"> Lorem Ipsum </a> </li>
-                    </ul>
                 </div>-->
+                <div class="col-lg-2  col-md-2 col-sm-4 col-xs-6">
+                    <h3> Contribute </h3>
+                    <ul>
+                        <li> <a href="https://github.com/Doxramos/DoxramosCMS" target="_blank"><i class="fa fa-github"></i>Github </a> </li>
+                    </ul>
+                </div>
                 <div class="col-lg-2  col-md-2 col-sm-4 col-xs-6">
                     <h3> Legal </h3>
                     <ul>
@@ -286,6 +295,24 @@ Setup Javascript module loaders
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
 <?php LoadScript("js","bootstrap.min.js"); ?>
+<script>
+    function footerAlign() {
+        $('footer').css('display', 'block');
+        $('footer').css('height', 'auto');
+        var footerHeight = $('footer').outerHeight();
+        $('body').css('padding-bottom', footerHeight);
+        $('footer').css('height', footerHeight);
+    }
+
+
+    $(document).ready(function(){
+        footerAlign();
+    });
+
+    $( window ).resize(function() {
+        footerAlign();
+    });
+</script>
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 </body>
 </html>
